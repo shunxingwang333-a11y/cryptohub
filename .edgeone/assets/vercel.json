@@ -1,0 +1,30 @@
+{
+  "version": 2,
+  "public": true,
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/pages/:path*", "destination": "/pages/:path*" },
+    { "source": "/admin/:path*", "destination": "/admin/:path*" },
+    { "source": "/detail", "destination": "/detail.html" }
+  ],
+  "headers": [
+    {
+      "source": "/css/(.*).css",
+      "headers": [
+        { "key": "Content-Type", "value": "text/css; charset=utf-8" }
+      ]
+    },
+    {
+      "source": "/js/(.*).js",
+      "headers": [
+        { "key": "Content-Type", "value": "application/javascript; charset=utf-8" }
+      ]
+    },
+    {
+      "source": "/(.*).html",
+      "headers": [
+        { "key": "Content-Type", "value": "text/html; charset=utf-8" }
+      ]
+    }
+  ]
+}

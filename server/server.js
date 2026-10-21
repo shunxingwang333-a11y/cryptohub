@@ -547,8 +547,8 @@ const server = http.createServer(async (req, res) => {
 
 // Initialize data and start server
 ensureDataFiles();
-server.listen(PORT, "127.0.0.1", () => {
-    console.log(`CryptoHub server running at http://127.0.0.1:${PORT}`);
-    console.log(`Admin panel: http://127.0.0.1:${PORT}/admin/index.html`);
+server.listen(PORT, "0.0.0.0", () => {
+    console.log(`CryptoHub server running at http://0.0.0.0:${PORT}`);
+    console.log(`Admin panel: http://0.0.0.0:${PORT}/admin/index.html`);
     console.log(`Admin login: username=admin, password=admin123`);
 });

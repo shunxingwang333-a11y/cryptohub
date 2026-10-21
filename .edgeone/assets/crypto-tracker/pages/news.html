@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>资讯 | CryptoHub</title>
+    <meta name="description" content="加密货币行业最新资讯与快讯" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><rect width=%2232%22 height=%2232%22 rx=%227%22 fill=%22%231652f0%22/><text x=%2216%22 y=%2222%22 text-anchor=%22middle%22 fill=%22white%22 font-size=%2218%22 font-weight=%22bold%22>C</text></svg>" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/pages.css" />
+</head>
+<body>
+
+    <header class="header">
+        <div class="header-inner">
+            <a href="/" class="logo">
+                <span class="logo-icon">C</span>
+                CryptoHub
+            </a>
+            <nav class="nav">
+                <a href="/">行情</a>
+                <a href="/pages/exchanges.html">交易所</a>
+                <a href="/pages/defi.html">DeFi</a>
+                <a href="/pages/nft.html">NFT</a>
+                <a href="/pages/news.html" class="active">资讯</a>
+            </nav>
+            <div class="header-actions">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="searchInput" placeholder="搜索币种..." autocomplete="off" />
+                    <div class="search-results" id="searchResults"></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="sub-page-header" style="margin: -24px -24px 24px; padding: 32px 24px;">
+            <h1>资讯中心</h1>
+            <p>加密货币行业最新资讯、快讯与深度分析</p>
+        </div>
+
+        <div class="news-category-filter" style="margin-bottom:24px">
+            <a href="/pages/news.html" class="active">全部</a>
+            <a href="/pages/news.html?category=btc">BTC</a>
+            <a href="/pages/news.html?category=eth">ETH</a>
+            <a href="/pages/news.html?category=sol">SOL</a>
+            <a href="/pages/news.html?category=xrp">XRP</a>
+            <a href="/pages/news.html?category=bnb">BNB</a>
+            <a href="/pages/news.html?category=defi">DeFi</a>
+            <a href="/pages/news.html?category=nft">NFT</a>
+        </div>
+
+        <div class="news-page-layout">
+            <!-- News List -->
+            <div>
+                <div class="news-list" id="newsList">
+                    <div style="text-align:center;padding:60px">
+                        <div class="spinner" style="margin:0 auto 16px"></div>
+                        <div class="loading-text">正在加载资讯...</div>
+                    </div>
+                </div>
+                <div class="pagination" id="newsPagination"></div>
+            </div>
+
+            <!-- Sidebar -->
+            <aside class="news-sidebar">
+                <div class="news-sidebar-card">
+                    <h3>热门资讯</h3>
+                    <div class="news-hot-list" id="hotNews"></div>
+                </div>
+                <div class="news-sidebar-card">
+                    <h3>关注我们</h3>
+                    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px">获取最新行情与资讯推送</p>
+                    <div class="detail-links">
+                        <a href="#">微信公众号</a>
+                        <a href="#">Twitter</a>
+                        <a href="#">Telegram</a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <span class="footer-text">数据来源：CoinGecko API | 仅供参考，不构成投资建议</span>
+        </div>
+    </footer>
+
+    <script src="/js/api.js"></script>
+    <script>
+        let currentPage = 1;
+        let currentCategory = new URLSearchParams(location.search).get("category") || "";
+
+        async function loadNews(page = 1) {
+            currentPage = page;
+            const list = document.getElementById("newsList");
+            list.innerHTML = `<div style="text-align:center;padding:60px"><div class="spinner" style="margin:0 auto 16px"></div><div class="loading-text">正在加载资讯...</div></div>`;
+
+            try {
+                let url = `/api/news?page=${page}&perPage=10`;
+                if (currentCategory) url += `&category=${currentCategory}`;
+                const res = await fetch(url);
+                const data = await res.json();
+                renderNewsList(data.items, data.total, data.perPage);
+            } catch (err) {
+                list.innerHTML = `<div class="error-overlay"><div>⚠️ 资讯加载失败: ${err.message}</div></div>`;
+            }
+        }
+
+        function renderNewsList(items, total, perPage) {
+            const list = document.getElementById("newsList");
+            if (!items || items.length === 0) {
+                list.innerHTML = `<div style="text-align:center;padding:60px;color:var(--text-secondary)">暂无资讯</div>`;
+                return;
+            }
+
+            const colors = { btc: "#f7931a", eth: "#627eea", sol: "#9945ff", xrp: "#23292f", bnb: "#f3ba2f", defi: "#00d4ff", nft: "#e44d6a" };
+
+            list.innerHTML = items.map(n => {
+                const color = colors[n.category] || "#1652f0";
+                const emoji = n.category === "btc" ? "₿" : n.category === "eth" ? "Ξ" : n.category === "sol" ? "◎" : n.category === "defi" ? "🔗" : n.category === "nft" ? "🎨" : "📰";
+                return `
+                    <div class="news-list-item" onclick="window.location.href='/pages/news-detail.html?id=${n.id}'">
+                        <div class="news-item-thumb" style="background:linear-gradient(135deg,${color}22,${color}44);color:${color}">${emoji}</div>
+                        <div class="news-item-body">
+                            <div class="news-item-title">${n.title}</div>
+                            <div class="news-item-summary">${n.summary}</div>
+                            <div class="news-item-meta">
+                                <span>来源: ${n.source}</span>
+                                <span>·</span>
+                                <span>${formatDate(n.publishedAt)}</span>
+                                <span>·</span>
+                                <span>阅读 ${n.views || 0}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join("");
+
+            // Pagination
+            const pages = Math.ceil(total / perPage);
+            const pagination = document.getElementById("newsPagination");
+            if (pages <= 1) { pagination.innerHTML = ""; return; }
+            let html = "";
+            html += `<button ${currentPage === 1 ? "disabled" : ""} onclick="loadNews(${currentPage - 1})">上一页</button>`;
+            for (let i = 1; i <= Math.min(pages, 10); i++) {
+                html += `<button class="${i === currentPage ? "active" : ""}" onclick="loadNews(${i})">${i}</button>`;
+            }
+            html += `<button ${currentPage >= pages ? "disabled" : ""} onclick="loadNews(${currentPage + 1})">下一页</button>`;
+            html += `<span class="page-info">共 ${total} 条</span>`;
+            pagination.innerHTML = html;
+        }
+
+        async function loadHotNews() {
+            try {
+                const res = await fetch("/api/news?page=1&perPage=5");
+                const data = await res.json();
+                const hot = document.getElementById("hotNews");
+                if (data.items && data.items.length > 0) {
+                    hot.innerHTML = data.items.slice(0, 5).map((n, i) => `
+                        <div class="news-hot-item" onclick="window.location.href='/pages/news-detail.html?id=${n.id}'">
+                            <span class="rank">${i + 1}</span>
+                            <span class="title">${n.title}</span>
+                        </div>
+                    `).join("");
+                }
+            } catch {}
+        }
+
+        function formatDate(iso) {
+            const d = new Date(iso);
+            const now = new Date();
+            const diff = now - d;
+            if (diff < 3600000) return Math.floor(diff / 60000) + "分钟前";
+            if (diff < 86400000) return Math.floor(diff / 3600000) + "小时前";
+            if (diff < 86400000 * 7) return Math.floor(diff / 86400000) + "天前";
+            return (d.getMonth() + 1) + "月" + d.getDate() + "日";
+        }
+
+        loadNews(1);
+        loadHotNews();
+
+        // Search
+        const input = document.getElementById("searchInput");
+        const results = document.getElementById("searchResults");
+        let timer = null;
+        input.addEventListener("input", (e) => {
+            const q = e.target.value.trim();
+            clearTimeout(timer);
+            if (!q) { results.classList.remove("show"); return; }
+            timer = setTimeout(async () => {
+                try {
+                    const coins = await API.search(q);
+                    if (coins.length === 0) {
+                        results.innerHTML = `<div class="search-result-item" style="color:var(--text-muted)">无搜索结果</div>`;
+                    } else {
+                        results.innerHTML = coins.map(c => `
+                            <div class="search-result-item" onclick="window.location.href='/detail.html?id=${c.id}'">
+                                ${c.thumb ? `<img src="${c.thumb}" alt="${c.name}" onerror="this.style.display='none'" />` : ""}
+                                <span class="sr-symbol">${c.symbol}</span>
+                                <span class="sr-name">${c.name}</span>
+                            </div>
+                        `).join("");
+                    }
+                    results.classList.add("show");
+                } catch {}
+            }, 400);
+        });
+        document.addEventListener("click", (e) => {
+            if (!e.target.closest(".search-box")) results.classList.remove("show");
+        });
+    </script>
+</body>
+</html>
