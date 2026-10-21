@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>币种详情 | CryptoHub</title>
+    <meta name="description" content="查看币种实时价格、市值、走势图表与市场数据" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><rect width=%2232%22 height=%2232%22 rx=%227%22 fill=%22%231652f0%22/><text x=%2216%22 y=%2222%22 text-anchor=%22middle%22 fill=%22white%22 font-size=%2218%22 font-weight=%22bold%22>C</text></svg>" />
+    <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-inner">
+            <a href="index.html" class="logo">
+                <span class="logo-icon">C</span>
+                CryptoHub
+            </a>
+            <nav class="nav">
+                <a href="index.html">行情</a>
+                <a href="index.html">交易所</a>
+                <a href="index.html">DeFi</a>
+                <a href="index.html">NFT</a>
+                <a href="index.html">资讯</a>
+            </nav>
+            <div class="header-actions">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="searchInput" placeholder="搜索币种..." autocomplete="off" />
+                    <div class="search-results" id="searchResults"></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main class="main">
+        <div id="detailContent"></div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-inner">
+            <span class="footer-text">数据来源：CoinGecko API | 仅供参考，不构成投资建议</span>
+            <div class="footer-links">
+                <a href="index.html">关于</a>
+                <a href="index.html">API</a>
+                <a href="index.html">免责声明</a>
+                <a href="index.html">联系我们</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script src="js/detail.js"></script>
+</body>
+</html>

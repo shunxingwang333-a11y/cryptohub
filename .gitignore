@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Vercel
+.vercel/
+
+# Environment
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# WorkBuddy internal
+.workbuddy-ai/
+
+# Server data (will use in-memory on Vercel)
+server/data/news.json
+server/data/app_info.json
+
+# Logs
+*.log
+/tmp/

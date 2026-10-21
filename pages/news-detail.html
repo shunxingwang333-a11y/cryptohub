@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>资讯详情 | CryptoHub</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><rect width=%2232%22 height=%2232%22 rx=%227%22 fill=%22%231652f0%22/><text x=%2216%22 y=%2222%22 text-anchor=%22middle%22 fill=%22white%22 font-size=%2218%22 font-weight=%22bold%22>C</text></svg>" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/pages.css" />
+</head>
+<body>
+
+    <header class="header">
+        <div class="header-inner">
+            <a href="/" class="logo">
+                <span class="logo-icon">C</span>
+                CryptoHub
+            </a>
+            <nav class="nav">
+                <a href="/">行情</a>
+                <a href="/pages/exchanges.html">交易所</a>
+                <a href="/pages/defi.html">DeFi</a>
+                <a href="/pages/nft.html">NFT</a>
+                <a href="/pages/news.html" class="active">资讯</a>
+            </nav>
+            <div class="header-actions">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="searchInput" placeholder="搜索币种..." autocomplete="off" />
+                    <div class="search-results" id="searchResults"></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div id="newsDetailContent" style="max-width:760px">
+            <div style="text-align:center;padding:80px">
+                <div class="spinner" style="margin:0 auto 16px"></div>
+                <div class="loading-text">正在加载资讯...</div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <span class="footer-text">数据来源：CoinGecko API | 仅供参考，不构成投资建议</span>
+        </div>
+    </footer>
+
+    <script src="/js/api.js"></script>
+    <script>
+        async function loadNews() {
+            const params = new URLSearchParams(location.search);
+            const id = params.get("id");
+            if (!id) {
+                document.getElementById("newsDetailContent").innerHTML = `
+                    <div class="error-overlay">
+                        <div>未指定资讯ID</div>
+                        <a href="/pages/news.html" class="retry-btn" style="text-decoration:none;display:inline-block;line-height:36px">返回资讯列表</a>
+                    </div>
+                `;
+                return;
+            }
+            try {
+                const res = await fetch(`/api/news/${id}`);
+                if (!res.ok) throw new Error("资讯不存在");
+                const n = await res.json();
+                document.title = `${n.title} | CryptoHub`;
+
+                const colors = { btc: "#f7931a", eth: "#627eea", sol: "#9945ff", xrp: "#23292f", bnb: "#f3ba2f", defi: "#00d4ff", nft: "#e44d6a" };
+                const catNames = { btc: "BTC", eth: "ETH", sol: "SOL", xrp: "XRP", bnb: "BNB", defi: "DeFi", nft: "NFT", general: "综合" };
+                const color = colors[n.category] || "#1652f0";
+                const catName = catNames[n.category] || "综合";
+
+                document.getElementById("newsDetailContent").innerHTML = `
+                    <a href="/pages/news.html" class="back-link">← 返回资讯列表</a>
+                    <div class="news-detail-header">
+                        <span class="news-detail-category" style="background:${color}">${catName}</span>
+                        <h1>${n.title}</h1>
+                        <div class="news-detail-meta">
+                            <span>来源: ${n.source}</span>
+                            <span>作者: ${n.author}</span>
+                            <span>${formatDateFull(n.publishedAt)}</span>
+                            <span>阅读 ${n.views || 0}</span>
+                        </div>
+                    </div>
+                    <div class="news-detail-content">
+                        <p style="font-size:18px;color:var(--text-secondary);font-weight:500;margin-bottom:24px">${n.summary}</p>
+                        ${n.content.split("\n").map(p => `<p>${p}</p>`).join("")}
+                    </div>
+                `;
+            } catch (err) {
+                document.getElementById("newsDetailContent").innerHTML = `
+                    <div class="error-overlay">
+                        <div>⚠️ ${err.message}</div>
+                        <a href="/pages/news.html" class="retry-btn" style="text-decoration:none;display:inline-block;line-height:36px">返回资讯列表</a>
+                    </div>
+                `;
+            }
+        }
+
+        function formatDateFull(iso) {
+            const d = new Date(iso);
+            return d.getFullYear() + "年" + (d.getMonth() + 1) + "月" + d.getDate() + "日 " + d.getHours().toString().padStart(2, "0") + ":" + d.getMinutes().toString().padStart(2, "0");
+        }
+
+        loadNews();
+
+        // Search
+        const input = document.getElementById("searchInput");
+        const results = document.getElementById("searchResults");
+        let timer = null;
+        input.addEventListener("input", (e) => {
+            const q = e.target.value.trim();
+            clearTimeout(timer);
+            if (!q) { results.classList.remove("show"); return; }
+            timer = setTimeout(async () => {
+                try {
+                    const coins = await API.search(q);
+                    if (coins.length === 0) {
+                        results.innerHTML = `<div class="search-result-item" style="color:var(--text-muted)">无搜索结果</div>`;
+                    } else {
+                        results.innerHTML = coins.map(c => `
+                            <div class="search-result-item" onclick="window.location.href='/detail.html?id=${c.id}'">
+                                ${c.thumb ? `<img src="${c.thumb}" alt="${c.name}" onerror="this.style.display='none'" />` : ""}
+                                <span class="sr-symbol">${c.symbol}</span>
+                                <span class="sr-name">${c.name}</span>
+                            </div>
+                        `).join("");
+                    }
+                    results.classList.add("show");
+                } catch {}
+            }, 400);
+        });
+        document.addEventListener("click", (e) => {
+            if (!e.target.closest(".search-box")) results.classList.remove("show");
+        });
+    </script>
+</body>
+</html>

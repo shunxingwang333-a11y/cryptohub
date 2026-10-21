@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DeFi | CryptoHub</title>
+    <meta name="description" content="去中心化金融协议排名与数据" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><rect width=%2232%22 height=%2232%22 rx=%227%22 fill=%22%231652f0%22/><text x=%2216%22 y=%2222%22 text-anchor=%22middle%22 fill=%22white%22 font-size=%2218%22 font-weight=%22bold%22>C</text></svg>" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/pages.css" />
+</head>
+<body>
+
+    <header class="header">
+        <div class="header-inner">
+            <a href="/" class="logo">
+                <span class="logo-icon">C</span>
+                CryptoHub
+            </a>
+            <nav class="nav">
+                <a href="/">行情</a>
+                <a href="/pages/exchanges.html">交易所</a>
+                <a href="/pages/defi.html" class="active">DeFi</a>
+                <a href="/pages/nft.html">NFT</a>
+                <a href="/pages/news.html">资讯</a>
+            </nav>
+            <div class="header-actions">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="searchInput" placeholder="搜索币种..." autocomplete="off" />
+                    <div class="search-results" id="searchResults"></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="sub-page-header" style="margin: -24px -24px 24px; padding: 32px 24px;">
+            <h1>DeFi 去中心化金融</h1>
+            <p>追踪 DeFi 协议总锁仓量、借贷、流动性质押、DEX 等赛道数据</p>
+            <div class="sub-page-stats">
+                <div class="stat-card">
+                    <div class="stat-label">DeFi 总 TVL</div>
+                    <div class="stat-value">¥7,124亿</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">24H 变化</div>
+                    <div class="stat-value">+2.8<span class="stat-change up">%</span></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">协议总数</div>
+                    <div class="stat-value">3,860</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">ETH 占比</div>
+                    <div class="stat-value">56%</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="filter-bar">
+            <div class="filter-tabs">
+                <button class="filter-tab active">全部</button>
+                <button class="filter-tab">借贷</button>
+                <button class="filter-tab">流动性质押</button>
+                <button class="filter-tab">DEX</button>
+                <button class="filter-tab">收益聚合</button>
+            </div>
+        </div>
+
+        <div class="defi-grid" id="defiGrid">
+            <!-- Cards rendered by JS -->
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <span class="footer-text">数据来源：CoinGecko API | 仅供参考，不构成投资建议</span>
+        </div>
+    </footer>
+
+    <script src="/js/api.js"></script>
+    <script>
+        const defiProtocols = [
+            { name: "Lido", logo: "L", color: "#00a3ff", category: "流动性质押", chain: "Ethereum", tvl: "¥248亿", apy: "3.2%", token: "LDO", price: "¥21.4" },
+            { name: "EigenLayer", logo: "E", color: "#1a0aff", category: "再质押", chain: "Ethereum", tvl: "¥186亿", apy: "--", token: "EIGEN", price: "¥25.3" },
+            { name: "Aave", logo: "A", color: "#b6509e", category: "借贷", chain: "多链", tvl: "¥168亿", apy: "4.8%", token: "AAVE", price: "¥748" },
+            { name: "MakerDAO", logo: "M", color: "#1aab9b", category: "CDP", chain: "Ethereum", tvl: "¥56亿", apy: "6.0%", token: "MKR", price: "¥11,200" },
+            { name: "Uniswap", logo: "U", color: "#ff007a", category: "DEX", chain: "多链", tvl: "¥42亿", apy: "12.5%", token: "UNI", price: "¥36.2" },
+            { name: "Pendle", logo: "P", color: "#28d59a", category: "收益", chain: "多链", tvl: "¥38亿", apy: "15-40%", token: "PENDLE", price: "¥35.2" },
+            { name: "Compound", logo: "C", color: "#00d395", category: "借贷", chain: "Ethereum", tvl: "¥22亿", apy: "3.5%", token: "COMP", price: "¥428" },
+            { name: "Curve", logo: "C", color: "#ff4d4d", category: "DEX", chain: "多链", tvl: "¥18亿", apy: "5.2%", token: "CRV", price: "¥3.1" },
+            { name: "Convex Finance", logo: "V", color: "#00a3ff", category: "收益聚合", chain: "Ethereum", tvl: "¥16亿", apy: "8.4%", token: "CVX", price: "¥25.8" },
+            { name: "GMX", logo: "G", color: "#4ade80", category: "衍生品DEX", chain: "Arbitrum", tvl: "¥12亿", apy: "18%", token: "GMX", price: "¥218" },
+            { name: "PancakeSwap", logo: "P", color: "#d1884f", category: "DEX", chain: "BNB Chain", tvl: "¥10亿", apy: "15%", token: "CAKE", price: "¥18.3" },
+            { name: "SushiSwap", logo: "S", color: "#fa52a0", category: "DEX", chain: "多链", tvl: "¥6.2亿", apy: "10%", token: "SUSHI", price: "¥5.8" },
+        ];
+
+        const grid = document.getElementById("defiGrid");
+        grid.innerHTML = defiProtocols.map(p => `
+            <div class="defi-card">
+                <div class="defi-card-header">
+                    <div class="defi-logo" style="background:${p.color}22;color:${p.color}">${p.logo}</div>
+                    <div>
+                        <div class="defi-name">${p.name}</div>
+                        <div class="defi-category">${p.category} · ${p.chain}</div>
+                    </div>
+                </div>
+                <div class="defi-card-stats">
+                    <div class="defi-card-stat">
+                        <span class="stat-key">TVL</span>
+                        <span class="stat-val">¥${p.tvl}</span>
+                    </div>
+                    <div class="defi-card-stat">
+                        <span class="stat-key">APY</span>
+                        <span class="stat-val" style="color:var(--green)">${p.apy}</span>
+                    </div>
+                    <div class="defi-card-stat">
+                        <span class="stat-key">代币</span>
+                        <span class="stat-val">${p.token}</span>
+                    </div>
+                    <div class="defi-card-stat">
+                        <span class="stat-key">代币价格</span>
+                        <span class="stat-val">¥${p.price}</span>
+                    </div>
+                </div>
+            </div>
+        `).join("");
+
+        // Search
+        const input = document.getElementById("searchInput");
+        const results = document.getElementById("searchResults");
+        let timer = null;
+        input.addEventListener("input", (e) => {
+            const q = e.target.value.trim();
+            clearTimeout(timer);
+            if (!q) { results.classList.remove("show"); return; }
+            timer = setTimeout(async () => {
+                try {
+                    const coins = await API.search(q);
+                    if (coins.length === 0) {
+                        results.innerHTML = `<div class="search-result-item" style="color:var(--text-muted)">无搜索结果</div>`;
+                    } else {
+                        results.innerHTML = coins.map(c => `
+                            <div class="search-result-item" onclick="window.location.href='/detail.html?id=${c.id}'">
+                                ${c.thumb ? `<img src="${c.thumb}" alt="${c.name}" onerror="this.style.display='none'" />` : ""}
+                                <span class="sr-symbol">${c.symbol}</span>
+                                <span class="sr-name">${c.name}</span>
+                            </div>
+                        `).join("");
+                    }
+                    results.classList.add("show");
+                } catch {}
+            }, 400);
+        });
+        document.addEventListener("click", (e) => {
+            if (!e.target.closest(".search-box")) results.classList.remove("show");
+        });
+    </script>
+</body>
+</html>

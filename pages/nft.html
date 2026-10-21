@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NFT | CryptoHub</title>
+    <meta name="description" content="NFT 项目地板价、交易量与市场数据" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><rect width=%2232%22 height=%2232%22 rx=%227%22 fill=%22%231652f0%22/><text x=%2216%22 y=%2222%22 text-anchor=%22middle%22 fill=%22white%22 font-size=%2218%22 font-weight=%22bold%22>C</text></svg>" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/pages.css" />
+</head>
+<body>
+
+    <header class="header">
+        <div class="header-inner">
+            <a href="/" class="logo">
+                <span class="logo-icon">C</span>
+                CryptoHub
+            </a>
+            <nav class="nav">
+                <a href="/">行情</a>
+                <a href="/pages/exchanges.html">交易所</a>
+                <a href="/pages/defi.html">DeFi</a>
+                <a href="/pages/nft.html" class="active">NFT</a>
+                <a href="/pages/news.html">资讯</a>
+            </nav>
+            <div class="header-actions">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="searchInput" placeholder="搜索币种..." autocomplete="off" />
+                    <div class="search-results" id="searchResults"></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="sub-page-header" style="margin: -24px -24px 24px; padding: 32px 24px;">
+            <h1>NFT 市场</h1>
+            <p>追踪 NFT 蓝筹项目地板价、交易量与持有者数据</p>
+            <div class="sub-page-stats">
+                <div class="stat-card">
+                    <div class="stat-label">NFT 24H 交易量</div>
+                    <div class="stat-value">¥8,240万</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">24H 变化</div>
+                    <div class="stat-value">+12.4<span class="stat-change up">%</span></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">活跃合集</div>
+                    <div class="stat-value">18,600</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">ETH 链占比</div>
+                    <div class="stat-value">48%</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="filter-bar">
+            <div class="filter-tabs">
+                <button class="filter-tab active">全部</button>
+                <button class="filter-tab">Ethereum</button>
+                <button class="filter-tab">Solana</button>
+                <button class="filter-tab">Polygon</button>
+                <button class="filter-tab">比特币</button>
+            </div>
+        </div>
+
+        <div class="nft-grid" id="nftGrid"></div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <span class="footer-text">数据仅供参考，不构成投资建议</span>
+        </div>
+    </footer>
+
+    <script src="/js/api.js"></script>
+    <script>
+        const nfts = [
+            { name: "Pudgy Penguins", chain: "Ethereum", floor: "12.5 ETH", floorUsd: "¥29.8万", vol24h: "¥320万", holders: "5,820", color: "#80c7e8", emoji: "🐧" },
+            { name: "Bored Ape Yacht Club", chain: "Ethereum", floor: "14.8 ETH", floorUsd: "¥35.2万", vol24h: "¥280万", holders: "4,960", color: "#f0a020", emoji: "🐵" },
+            { name: "Azuki", chain: "Ethereum", floor: "6.2 ETH", floorUsd: "¥14.8万", vol24h: "¥210万", holders: "8,420", color: "#ff4444", emoji: "🔴" },
+            { name: "CryptoPunks", chain: "Ethereum", floor: "28.5 ETH", floorUsd: "¥68.0万", vol24h: "¥460万", holders: "3,720", color: "#6f3c2e", emoji: "🤖" },
+            { name: "Milady Maker", chain: "Ethereum", floor: "3.8 ETH", floorUsd: "¥9.1万", vol24h: "¥150万", holders: "5,200", color: "#ff69b4", emoji: "🌸" },
+            { name: "Doodles", chain: "Ethereum", floor: "1.5 ETH", floorUsd: "¥3.6万", vol24h: "¥80万", holders: "6,800", color: "#7b3ff2", emoji: "🌈" },
+            { name: "Mutant Ape Yacht Club", chain: "Ethereum", floor: "2.3 ETH", floorUsd: "¥5.5万", vol24h: "¥120万", holders: "11,200", color: "#98fb98", emoji: "🧬" },
+            { name: "DeGods", chain: "Solana", floor: "18.5 SOL", floorUsd: "¥1.3万", vol24h: "¥60万", holders: "4,800", color: "#ffd700", emoji: "👑" },
+            { name: "Tensorians", chain: "Solana", floor: "42.0 SOL", floorUsd: "¥3.0万", vol24h: "¥45万", holders: "3,200", color: "#00ced1", emoji: "🤖" },
+            { name: "Pudgy Penguins", chain: "Ethereum", floor: "12.5 ETH", floorUsd: "¥29.8万", vol24h: "¥320万", holders: "5,820", color: "#80c7e8", emoji: "🐧" },
+            { name: "Bitcoin Puppets", chain: "比特币", floor: "0.028 BTC", floorUsd: "¥1.6万", vol24h: "¥38万", holders: "2,800", color: "#f7931a", emoji: " pupper" },
+            { name: "NodeMonkes", chain: "比特币", floor: "0.045 BTC", floorUsd: "¥2.6万", vol24h: "¥52万", holders: "4,200", color: "#50c878", emoji: "🐸" },
+        ];
+
+        const grid = document.getElementById("nftGrid");
+        grid.innerHTML = nfts.map(n => `
+            <div class="nft-card">
+                <div class="nft-card-image" style="background:linear-gradient(135deg,${n.color},${n.color}88)">${n.emoji}</div>
+                <div class="nft-card-body">
+                    <div class="nft-name">${n.name}</div>
+                    <div class="nft-chain">${n.chain}</div>
+                    <div class="nft-card-stats">
+                        <div>
+                            <div class="stat-key">地板价</div>
+                            <div class="stat-val">${n.floor}</div>
+                            <div class="stat-key" style="margin-top:2px">${n.floorUsd}</div>
+                        </div>
+                        <div style="text-align:right">
+                            <div class="stat-key">24H成交量</div>
+                            <div class="stat-val">${n.vol24h}</div>
+                            <div class="stat-key" style="margin-top:2px">持有 ${n.holders}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `).join("");
+
+        // Search
+        const input = document.getElementById("searchInput");
+        const results = document.getElementById("searchResults");
+        let timer = null;
+        input.addEventListener("input", (e) => {
+            const q = e.target.value.trim();
+            clearTimeout(timer);
+            if (!q) { results.classList.remove("show"); return; }
+            timer = setTimeout(async () => {
+                try {
+                    const coins = await API.search(q);
+                    if (coins.length === 0) {
+                        results.innerHTML = `<div class="search-result-item" style="color:var(--text-muted)">无搜索结果</div>`;
+                    } else {
+                        results.innerHTML = coins.map(c => `
+                            <div class="search-result-item" onclick="window.location.href='/detail.html?id=${c.id}'">
+                                ${c.thumb ? `<img src="${c.thumb}" alt="${c.name}" onerror="this.style.display='none'" />` : ""}
+                                <span class="sr-symbol">${c.symbol}</span>
+                                <span class="sr-name">${c.name}</span>
+                            </div>
+                        `).join("");
+                    }
+                    results.classList.add("show");
+                } catch {}
+            }, 400);
+        });
+        document.addEventListener("click", (e) => {
+            if (!e.target.closest(".search-box")) results.classList.remove("show");
+        });
+    </script>
+</body>
+</html>
