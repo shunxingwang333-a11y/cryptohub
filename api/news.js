@@ -1,41 +1,25 @@
-const { getNews, sendJSON } = require("./_shared");
+const { sendJSON, handlePreflight } = require("./_shared");
+const { listNews } = require("./_db");
 
-module.exports = (req, res) => {
-    if (req.method === "OPTIONS") {
-        res.status(204)
-           .setHeader("Access-Control-Allow-Origin", "*")
-           .setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-           .setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization")
-           .end();
-        return;
-    }
+module.exports = async (req, res) => {
+    if (handlePreflight(req, res)) return;
 
     if (req.method !== "GET") {
         return sendJSON(res, 405, { error: "Method not allowed" });
     }
 
-    let news = getNews().filter(n => n.status === "published");
-    news.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
-
-    const { category, search, page: pageStr, perPage: perPageStr } = req.query;
-
-    if (category) {
-        news = news.filter(n => n.category === category);
+    try {
+        const { category, search, page, perPage } = req.query;
+        const result = await listNews({
+            page: parseInt(page) || 1,
+            perPage: parseInt(perPage) || 10,
+            category: category || "",
+            search: search || "",
+            status: "published",
+        });
+        sendJSON(res, 200, result);
+    } catch (err) {
+        console.error("[news] list failed:", err);
+        sendJSON(res, 500, { error: "资讯获取失败" });
     }
-
-    if (search) {
-        const q = search.toLowerCase();
-        news = news.filter(n =>
-            n.title.toLowerCase().includes(q) ||
-            n.summary.toLowerCase().includes(q) ||
-            n.content.toLowerCase().includes(q)
-        );
-    }
-
-    const page = parseInt(pageStr) || 1;
-    const perPage = parseInt(perPageStr) || 10;
-    const total = news.length;
-    const items = news.slice((page - 1) * perPage, page * perPage);
-
-    sendJSON(res, 200, { total, page, perPage, items });
 };

@@ -1,14 +1,8 @@
-const { getNews, saveNews, sendJSON } = require("../_shared");
+const { sendJSON, handlePreflight } = require("../_shared");
+const { incrementViews } = require("../_db");
 
-module.exports = (req, res) => {
-    if (req.method === "OPTIONS") {
-        res.status(204)
-           .setHeader("Access-Control-Allow-Origin", "*")
-           .setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-           .setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization")
-           .end();
-        return;
-    }
+module.exports = async (req, res) => {
+    if (handlePreflight(req, res)) return;
 
     if (req.method !== "GET") {
         return sendJSON(res, 405, { error: "Method not allowed" });
@@ -19,14 +13,14 @@ module.exports = (req, res) => {
         return sendJSON(res, 400, { error: "Invalid news ID" });
     }
 
-    const news = getNews();
-    const item = news.find(n => n.id === id);
-
-    if (item) {
-        item.views = (item.views || 0) + 1;
-        saveNews(news);
+    try {
+        const item = await incrementViews(id);
+        if (!item) {
+            return sendJSON(res, 404, { error: "News not found" });
+        }
         sendJSON(res, 200, item);
-    } else {
-        sendJSON(res, 404, { error: "News not found" });
+    } catch (err) {
+        console.error("[news] detail failed:", err);
+        sendJSON(res, 500, { error: "资讯详情获取失败" });
     }
 };

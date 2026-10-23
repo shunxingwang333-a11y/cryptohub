@@ -1,51 +1,46 @@
-const { getNews, sendJSON, checkAuth, ADMIN_TOKEN } = require("../_shared");
+const { sendJSON, checkAuth, handlePreflight, ADMIN_TOKEN } = require("../_shared");
+const { listNews, createNews } = require("../_db");
 
-module.exports = (req, res) => {
-    if (req.method === "OPTIONS") {
-        res.status(204)
-           .setHeader("Access-Control-Allow-Origin", "*")
-           .setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-           .setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization")
-           .end();
-        return;
-    }
+module.exports = async (req, res) => {
+    if (handlePreflight(req, res)) return;
 
     if (!checkAuth(req) && req.query.token !== ADMIN_TOKEN) {
         return sendJSON(res, 401, { error: "未授权" });
     }
 
-    if (req.method === "GET") {
-        let news = getNews();
-        news.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
+    try {
+        if (req.method === "GET") {
+            const result = await listNews({
+                page: parseInt(req.query.page) || 1,
+                perPage: parseInt(req.query.perPage) || 20,
+                category: req.query.category || "",
+                search: req.query.search || "",
+                status: req.query.status || "",
+            });
+            return sendJSON(res, 200, result);
+        }
 
-        const page = parseInt(req.query.page) || 1;
-        const perPage = parseInt(req.query.perPage) || 20;
-        const total = news.length;
-        const items = news.slice((page - 1) * perPage, page * perPage);
+        if (req.method === "POST") {
+            const body = req.body || {};
+            if (!body.title || !String(body.title).trim()) {
+                return sendJSON(res, 400, { error: "标题不能为空" });
+            }
+            const item = await createNews({
+                title: String(body.title).trim(),
+                summary: body.summary || "",
+                content: body.content || "",
+                category: body.category || "general",
+                source: body.source || "CryptoHub",
+                author: body.author || "管理员",
+                publishedAt: body.publishedAt || new Date().toISOString(),
+                status: body.status || "published",
+            });
+            return sendJSON(res, 201, item);
+        }
 
-        return sendJSON(res, 200, { total, page, perPage, items });
+        sendJSON(res, 405, { error: "Method not allowed" });
+    } catch (err) {
+        console.error("[admin/news] failed:", err);
+        sendJSON(res, 500, { error: "服务器错误" });
     }
-
-    if (req.method === "POST") {
-        const news = getNews();
-        const newId = news.length > 0 ? Math.max(...news.map(n => n.id)) + 1 : 1;
-        const body = req.body || {};
-        const item = {
-            id: newId,
-            title: body.title || "无标题",
-            summary: body.summary || "",
-            content: body.content || "",
-            category: body.category || "general",
-            source: body.source || "CryptoHub",
-            author: body.author || "管理员",
-            publishedAt: body.publishedAt || new Date().toISOString(),
-            status: body.status || "published",
-            views: 0,
-        };
-        news.push(item);
-        sendJSON(res, 201, item);
-        return;
-    }
-
-    sendJSON(res, 405, { error: "Method not allowed" });
 };
