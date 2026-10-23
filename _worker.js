@@ -121,8 +121,8 @@ export default {
         // POST /api/login — admin login
         if (path === "/api/login" && method === "POST") {
             const body = await parseBody(request);
-            if (body.username === "admin" && body.password === "admin123") {
-                return jsonResponse(200, { token: ADMIN_TOKEN, username: "admin" });
+            if (body.username === "wladmin" && body.password === "lcc666888") {
+                return jsonResponse(200, { token: ADMIN_TOKEN, username: "wladmin" });
             }
             return jsonResponse(401, { error: "用户名或密码错误" });
         }

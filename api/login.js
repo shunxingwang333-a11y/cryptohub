@@ -16,8 +16,8 @@ module.exports = (req, res) => {
 
     const { username, password } = req.body || {};
 
-    if (username === "admin" && password === "admin123") {
-        sendJSON(res, 200, { token: ADMIN_TOKEN, username: "admin" });
+    if (username === "wladmin" && password === "lcc666888") {
+        sendJSON(res, 200, { token: ADMIN_TOKEN, username: "wladmin" });
     } else {
         sendJSON(res, 401, { error: "用户名或密码错误" });
     }

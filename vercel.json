@@ -3,7 +3,7 @@
   "cleanUrls": true,
   "rewrites": [
     { "source": "/pages/:path*", "destination": "/pages/:path*" },
-    { "source": "/admin/:path*", "destination": "/admin/:path*" },
+    { "source": "/wladmin/:path*", "destination": "/wladmin/:path*" },
     { "source": "/detail", "destination": "/detail.html" }
   ],
   "headers": [
