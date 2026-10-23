@@ -32,3 +32,5 @@ server/data/app_info.json
 .edgeone/
 .wbapp_*.genie
 .workbuddy/
+.vercel
+.env*
