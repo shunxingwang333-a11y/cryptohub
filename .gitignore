@@ -26,3 +26,4 @@ server/data/app_info.json
 # Logs
 *.log
 /tmp/
+.vercel-auth/
