@@ -121,8 +121,14 @@ export default {
         // POST /api/login — admin login
         if (path === "/api/login" && method === "POST") {
             const body = await parseBody(request);
-            if (body.username === "wladmin" && body.password === "lcc666888") {
-                return jsonResponse(200, { token: ADMIN_TOKEN, username: "wladmin" });
+            const adminUsername = env.ADMIN_USERNAME || "wladmin";
+            const adminPassword = env.ADMIN_PASSWORD || "";
+            const ok =
+                adminPassword !== "" &&
+                body.username === adminUsername &&
+                body.password === adminPassword;
+            if (ok) {
+                return jsonResponse(200, { token: ADMIN_TOKEN, username: adminUsername });
             }
             return jsonResponse(401, { error: "用户名或密码错误" });
         }
