@@ -27,3 +27,6 @@ server/data/app_info.json
 *.log
 /tmp/
 .vercel-auth/
+
+# EdgeOne build cache
+.edgeone/
