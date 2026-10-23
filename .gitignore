@@ -30,3 +30,5 @@ server/data/app_info.json
 
 # EdgeOne build cache
 .edgeone/
+.wbapp_*.genie
+.workbuddy/
