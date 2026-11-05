@@ -57,6 +57,9 @@ async function ensureSchema() {
             q`CREATE TABLE IF NOT EXISTS news (
                 id SERIAL PRIMARY KEY,
                 title TEXT NOT NULL,
+                meta_title TEXT NOT NULL DEFAULT '',
+                meta_description TEXT NOT NULL DEFAULT '',
+                meta_keywords TEXT NOT NULL DEFAULT '',
                 summary TEXT NOT NULL DEFAULT '',
                 content TEXT NOT NULL DEFAULT '',
                 category TEXT NOT NULL DEFAULT 'general',
@@ -69,6 +72,11 @@ async function ensureSchema() {
                 updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
             )`
         );
+
+        await tryDdl("Add news TDK columns", () => q`ALTER TABLE news
+            ADD COLUMN IF NOT EXISTS meta_title TEXT NOT NULL DEFAULT '',
+            ADD COLUMN IF NOT EXISTS meta_description TEXT NOT NULL DEFAULT '',
+            ADD COLUMN IF NOT EXISTS meta_keywords TEXT NOT NULL DEFAULT ''`);
 
         await tryDdl("CREATE INDEX news_published_at_idx", () =>
             q`CREATE INDEX IF NOT EXISTS news_published_at_idx ON news (published_at DESC)`
@@ -112,6 +120,9 @@ function rowToNews(row) {
     return {
         id: row.id,
         title: row.title,
+        metaTitle: row.meta_title || "",
+        metaDescription: row.meta_description || "",
+        metaKeywords: row.meta_keywords || "",
         summary: row.summary,
         content: row.content,
         category: row.category,
@@ -200,16 +211,17 @@ async function createNews(input) {
     }
 
     const rows = await q`INSERT INTO news
-        (title, summary, content, category, source, author, published_at, status)
+        (title, meta_title, meta_description, meta_keywords, summary, content, category, source, author, published_at, status)
         VALUES (
-            ${input.title}, ${input.summary}, ${input.content}, ${input.category},
+            ${input.title}, ${input.metaTitle || ""}, ${input.metaDescription || ""}, ${input.metaKeywords || ""},
+            ${input.summary}, ${input.content}, ${input.category},
             ${input.source}, ${input.author}, ${input.publishedAt}, ${input.status}
         )
         RETURNING *`;
     return rowToNews(rows[0]);
 }
 
-const EDITABLE = ["title", "summary", "content", "category", "source", "author", "status", "publishedAt"];
+const EDITABLE = ["title", "metaTitle", "metaDescription", "metaKeywords", "summary", "content", "category", "source", "author", "status", "publishedAt"];
 
 async function updateNews(id, patch) {
     const q = db();
@@ -231,6 +243,9 @@ async function updateNews(id, patch) {
 
     const rows = await q`UPDATE news SET
         title = ${next.title},
+        meta_title = ${next.metaTitle || ""},
+        meta_description = ${next.metaDescription || ""},
+        meta_keywords = ${next.metaKeywords || ""},
         summary = ${next.summary},
         content = ${next.content},
         category = ${next.category},

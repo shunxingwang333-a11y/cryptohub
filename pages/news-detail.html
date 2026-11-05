@@ -4,6 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>资讯详情 | CryptoHub</title>
+    <meta name="description" content="CryptoHub 加密货币资讯详情" />
+    <meta name="keywords" content="加密货币,区块链,数字货币资讯" />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><rect width=%2232%22 height=%2232%22 rx=%227%22 fill=%22%231652f0%22/><text x=%2216%22 y=%2222%22 text-anchor=%22middle%22 fill=%22white%22 font-size=%2218%22 font-weight=%22bold%22>C</text></svg>" />
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="/css/pages.css" />
@@ -66,7 +68,13 @@
                 const res = await fetch(`/api/news/${id}`);
                 if (!res.ok) throw new Error("资讯不存在");
                 const n = await res.json();
-                document.title = `${n.title} | CryptoHub`;
+                const metaTitle = n.metaTitle || `${n.title} | CryptoHub`;
+                const metaDescription = n.metaDescription || n.summary || `${n.title}，查看 CryptoHub 加密货币市场最新资讯。`;
+                const categoryKeywords = { btc: "比特币,BTC", eth: "以太坊,ETH", sol: "Solana,SOL", xrp: "Ripple,XRP", bnb: "BNB,币安", defi: "DeFi,去中心化金融", nft: "NFT,数字藏品", general: "加密货币,区块链" };
+                const metaKeywords = n.metaKeywords || `${n.title},${categoryKeywords[n.category] || "加密货币,区块链"},CryptoHub`;
+                document.title = metaTitle;
+                setMetaContent("description", metaDescription);
+                setMetaContent("keywords", metaKeywords);
 
                 const colors = { btc: "#f7931a", eth: "#627eea", sol: "#9945ff", xrp: "#23292f", bnb: "#f3ba2f", defi: "#00d4ff", nft: "#e44d6a" };
                 const catNames = { btc: "BTC", eth: "ETH", sol: "SOL", xrp: "XRP", bnb: "BNB", defi: "DeFi", nft: "NFT", general: "综合" };
@@ -98,6 +106,16 @@
                     </div>
                 `;
             }
+        }
+
+        function setMetaContent(name, content) {
+            let tag = document.querySelector(`meta[name="${name}"]`);
+            if (!tag) {
+                tag = document.createElement("meta");
+                tag.name = name;
+                document.head.appendChild(tag);
+            }
+            tag.content = content;
         }
 
         function formatDateFull(iso) {

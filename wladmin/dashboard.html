@@ -115,6 +115,18 @@
                     <input type="text" id="newsTitle" placeholder="请输入资讯标题" />
                 </div>
                 <div class="form-row">
+                    <label>SEO 标题（Title）</label>
+                    <input type="text" id="newsMetaTitle" maxlength="200" placeholder="留空时使用资讯标题" />
+                </div>
+                <div class="form-row">
+                    <label>SEO 描述（Description）</label>
+                    <textarea id="newsMetaDescription" maxlength="320" placeholder="留空时使用资讯摘要" style="min-height:80px"></textarea>
+                </div>
+                <div class="form-row">
+                    <label>SEO 关键词（Keywords）</label>
+                    <input type="text" id="newsMetaKeywords" placeholder="多个关键词用英文逗号分隔" />
+                </div>
+                <div class="form-row">
                     <label>摘要</label>
                     <textarea id="newsSummary" placeholder="一句话摘要" style="min-height:60px"></textarea>
                 </div>
@@ -254,6 +266,9 @@
             document.getElementById("modalTitle").textContent = "新建资讯";
             document.getElementById("newsId").value = "";
             document.getElementById("newsTitle").value = "";
+            document.getElementById("newsMetaTitle").value = "";
+            document.getElementById("newsMetaDescription").value = "";
+            document.getElementById("newsMetaKeywords").value = "";
             document.getElementById("newsSummary").value = "";
             document.getElementById("newsContent").value = "";
             document.getElementById("newsCategory").value = "general";
@@ -269,6 +284,9 @@
                 document.getElementById("modalTitle").textContent = "编辑资讯";
                 document.getElementById("newsId").value = n.id;
                 document.getElementById("newsTitle").value = n.title;
+                document.getElementById("newsMetaTitle").value = n.metaTitle || "";
+                document.getElementById("newsMetaDescription").value = n.metaDescription || "";
+                document.getElementById("newsMetaKeywords").value = n.metaKeywords || "";
                 document.getElementById("newsSummary").value = n.summary;
                 document.getElementById("newsContent").value = n.content;
                 document.getElementById("newsCategory").value = n.category;
@@ -292,6 +310,9 @@
 
             const data = {
                 title: document.getElementById("newsTitle").value.trim(),
+                metaTitle: document.getElementById("newsMetaTitle").value.trim(),
+                metaDescription: document.getElementById("newsMetaDescription").value.trim(),
+                metaKeywords: document.getElementById("newsMetaKeywords").value.trim(),
                 summary: document.getElementById("newsSummary").value.trim(),
                 content: document.getElementById("newsContent").value.trim(),
                 category: document.getElementById("newsCategory").value,

@@ -27,6 +27,9 @@ module.exports = async (req, res) => {
             }
             const item = await createNews({
                 title: String(body.title).trim(),
+                metaTitle: String(body.metaTitle || "").trim(),
+                metaDescription: String(body.metaDescription || "").trim(),
+                metaKeywords: String(body.metaKeywords || "").trim(),
                 summary: body.summary || "",
                 content: body.content || "",
                 category: body.category || "general",
